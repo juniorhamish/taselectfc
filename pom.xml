@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
@@ -14,11 +15,24 @@
         <appengine.version>1.9.23</appengine.version>
         <gcloud.plugin.version>0.9.58.v20150505</gcloud.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>4.1.7.RELEASE</spring.version>
     </properties>
 
     <prerequisites>
         <maven>3.1.0</maven>
     </prerequisites>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>${spring.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- Compile/runtime dependencies -->
@@ -38,6 +52,10 @@
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
@@ -55,7 +73,7 @@
     </dependencies>
 
     <build>
-        <!-- for hot reload of the web application-->
+        <!-- for hot reload of the web application -->
         <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
         <plugins>
             <plugin>
@@ -106,22 +124,20 @@
                     <enableJarClasses>false</enableJarClasses>
                     <version>${app.version}</version>
                     <!-- Comment in the below snippet to bind to all IPs instead of just localhost -->
-                    <!-- address>0.0.0.0</address>
-                    <port>8080</port -->
-                    <!-- Comment in the below snippet to enable local debugging with a remote debugger
-                         like those included with Eclipse or IntelliJ -->
-                    <!-- jvmFlags>
-                      <jvmFlag>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</jvmFlag>
-                    </jvmFlags -->
+                    <!-- address>0.0.0.0</address> <port>8080</port -->
+                    <!-- Comment in the below snippet to enable local debugging with a remote debugger like those included 
+                        with Eclipse or IntelliJ -->
+                    <!-- jvmFlags> <jvmFlag>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</jvmFlag> 
+                        </jvmFlags -->
                 </configuration>
             </plugin>
             <plugin>
-              <groupId>com.google.appengine</groupId>
-              <artifactId>gcloud-maven-plugin</artifactId>
-              <version>${gcloud.plugin.version}</version>
-              <configuration>
-                <set_default>true</set_default>
-              </configuration>
+                <groupId>com.google.appengine</groupId>
+                <artifactId>gcloud-maven-plugin</artifactId>
+                <version>${gcloud.plugin.version}</version>
+                <configuration>
+                    <set_default>true</set_default>
+                </configuration>
             </plugin>
         </plugins>
     </build>
