@@ -28,7 +28,7 @@
     <![endif]-->
 </head>
 <body>
-    <div class="brand" id="banner">Tartan Army Select Football Club</div>
+    <div class="brand" id="banner">Tartan Army Select<br/>Football Club</div>
     <nav class="navbar navbar-default navbar-static-top" role="navigation" id="topnavbar">
         <div class="container">
             <div class="navbar-header">
@@ -38,10 +38,12 @@
                     <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
+                <a class="pull-left" href="#"><img src="/resources/images/TASelectFCTransparentSmall.png"/></a>
                 <a class="navbar-brand" href="#">TA Select FC</a>
             </div>
             <!-- nav links -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <a class="pull-left" href="#" id="navbar-logo"><img src="/resources/images/TASelectFCTransparent.png"/></a>
                 <ul class="nav navbar-nav">
                     <li><a href="<c:url value="/"/>">Home</a></li>
                     <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
@@ -56,6 +58,7 @@
                             <li><a href="#">Fixtures</a></li>
                             <li><a href="#">Results</a></li>
                         </ul></li>
+                    <li><a href="#">Gallery</a></li>
                     <li><a href="#">Contact</a></li>
                 </ul>
             </div>
