@@ -10,7 +10,7 @@
     <artifactId>taselectfc</artifactId>
 
     <properties>
-        <app.id>your-app-id</app.id>
+        <app.id>ta-select-fc</app.id>
         <app.version>1</app.version>
         <appengine.version>1.9.23</appengine.version>
         <gcloud.plugin.version>0.9.58.v20150505</gcloud.plugin.version>
