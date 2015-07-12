@@ -1,4 +1,4 @@
-var taselectfcApp = angular.module("taselectfcApp", [ 'ngRoute' ]);
+var taselectfcApp = angular.module("taselectfcApp", [ 'ngRoute', 'taselectfcControllers' ]);
 
 taselectfcApp.config([ '$routeProvider', function($routeProvider) {
     $routeProvider.when('/home', {
@@ -6,7 +6,8 @@ taselectfcApp.config([ '$routeProvider', function($routeProvider) {
     }).when('/contact', {
         templateUrl : 'resources/partials/contact.jsp'
     }).when('/fixtures', {
-        templateUrl : 'resources/partials/fixtures.jsp'
+        templateUrl : 'resources/partials/fixtures.jsp',
+        controller : 'FixtureListController'
     }).when('/results', {
         templateUrl : 'resources/partials/results.jsp'
     }).when('/squad', {

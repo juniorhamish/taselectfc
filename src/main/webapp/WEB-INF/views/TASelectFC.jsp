@@ -83,5 +83,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-route.min.js"></script>
     <script src="/resources/js/taselectfc.js"></script>
+    <script src="/resources/js/controllers.js"></script>
 </body>
 </html>
