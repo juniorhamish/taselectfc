@@ -24,7 +24,12 @@ taselectfcApp.config([ '$routeProvider', function($routeProvider) {
 var offsetCalculator = function() {
     return $('#banner').outerHeight(true);
 }
-$('#topnavbar').affix({
+var $menu = $("#topnavbar");
+
+//To account for the affixed submenu being pulled out of the content flow.
+var $placeholder = $menu.clone().addClass("affix-placeholder");
+$menu.after($placeholder);
+$menu.affix({
     offset : {
         top : offsetCalculator
     }
