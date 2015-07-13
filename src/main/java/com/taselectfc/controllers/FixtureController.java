@@ -23,14 +23,14 @@ public class FixtureController {
         fixture.setHomeTeamName("Georgia");
         fixture.setHomeTeamFlag("Georgia.jpg");
         fixture.setAwayTeamName("Scotland");
-        fixture.setAwayTeamFlag("Scotland.png");
+        fixture.setAwayTeamFlag("Scotland.jpg");
         fixture.setVenue("TBC");
         fixture.setDate(formatter.parse("04-09-2015 15:00"));
         fixtures.add(fixture);
         
         fixture = new FixtureSummary();
         fixture.setHomeTeamName("Scotland");
-        fixture.setHomeTeamFlag("Scotland.png");
+        fixture.setHomeTeamFlag("Scotland.jpg");
         fixture.setAwayTeamName("Germany");
         fixture.setAwayTeamFlag("Germany.jpg");
         fixture.setVenue("TBC");
@@ -39,7 +39,7 @@ public class FixtureController {
         
         fixture = new FixtureSummary();
         fixture.setHomeTeamName("Scotland");
-        fixture.setHomeTeamFlag("Scotland.png");
+        fixture.setHomeTeamFlag("Scotland.jpg");
         fixture.setAwayTeamName("Poland");
         fixture.setAwayTeamFlag("Poland.jpg");
         fixture.setVenue("TBC");
@@ -50,7 +50,7 @@ public class FixtureController {
         fixture.setHomeTeamName("Gibraltar");
         fixture.setHomeTeamFlag("Gibraltar.jpg");
         fixture.setAwayTeamName("Scotland");
-        fixture.setAwayTeamFlag("Scotland.png");
+        fixture.setAwayTeamFlag("Scotland.jpg");
         fixture.setVenue("TBC");
         fixture.setDate(formatter.parse("11-10-2015 15:00"));
         fixtures.add(fixture);
