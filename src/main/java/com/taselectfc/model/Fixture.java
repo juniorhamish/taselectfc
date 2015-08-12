@@ -2,14 +2,23 @@ package com.taselectfc.model;
 
 import java.util.Date;
 
-public class FixtureSummary {
+public class Fixture {
 
+    private String id;
     private Date date;
     private String homeTeamName;
     private String awayTeamName;
     private String homeTeamFlag;
     private String awayTeamFlag;
     private String venue;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getVenue() {
         return venue;

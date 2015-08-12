@@ -8,6 +8,9 @@ taselectfcApp.config([ '$routeProvider', function($routeProvider) {
     }).when('/fixtures', {
         templateUrl : 'resources/partials/fixtures.jsp',
         controller : 'FixtureListController'
+    }).when('/fixtures/:id', {
+        templateUrl : 'resources/partials/fixture.jsp',
+        controller : 'FixtureController'
     }).when('/results', {
         templateUrl : 'resources/partials/results.jsp'
     }).when('/squad', {

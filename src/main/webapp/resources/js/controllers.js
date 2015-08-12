@@ -5,3 +5,9 @@ taselectfcControllers.controller('FixtureListController', ['$scope', '$http', fu
         $scope.fixtures = data;
     });
 }]);
+
+taselectfcControllers.controller('FixtureController', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+    $http.get('fixtures/'+ $routeParams.id +'.json').success(function(data) {
+        $scope.fixture = data;
+    });
+}]);
