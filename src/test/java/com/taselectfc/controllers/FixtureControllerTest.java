@@ -79,8 +79,7 @@ public class FixtureControllerTest {
         when(fixtureDAO.getFixtureById("1234")).thenReturn(fixture1);
 
         mockMvc.perform(get("/fixtures/1234")).andExpect(status().isOk()).andExpect(jsonPath("$.id", is("1234")))
-                .andExpect(jsonPath("$.venue", is("Firhill")))
-                .andExpect(jsonPath("$.homeTeamName", is("Scotland")))
+                .andExpect(jsonPath("$.venue", is("Firhill"))).andExpect(jsonPath("$.homeTeamName", is("Scotland")))
                 .andExpect(jsonPath("$.awayTeamName", is("Germany")))
                 .andExpect(jsonPath("$.homeTeamFlag", is("Scotland.jpg")))
                 .andExpect(jsonPath("$.awayTeamFlag", is("Germany.jpg")))
