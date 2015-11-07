@@ -1,6 +1,7 @@
 package com.taselectfc.controllers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -32,7 +33,8 @@ public class HomeControllerTest {
 
     @Test
     public void shouldGetHomePageAtRoot() throws Exception {
-        mockMvc.perform(get("/")).andExpect(status().isOk()).andExpect(view().name("TASelectFC"));
+        mockMvc.perform(get("/")).andExpect(status().isOk()).andExpect(view().name("TASelectFC"))
+                .andExpect(forwardedUrl("/WEB-INF/views/TASelectFC.jsp"));
     }
 
 }
