@@ -27,4 +27,10 @@ public class InMemoryFixtureDAO implements FixtureDAO {
         return fixtures;
     }
 
+    @Override
+    public Fixture deleteFixtureById(String id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

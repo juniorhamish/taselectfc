@@ -9,4 +9,6 @@ public interface FixtureDAO {
     Fixture getFixtureById(String id);
 
     List<Fixture> getAllFixtures();
+
+    Fixture deleteFixtureById(String id);
 }

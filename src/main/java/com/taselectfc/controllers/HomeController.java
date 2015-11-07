@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class HomeController {
 
-    private static Logger log = LoggerFactory.getLogger(HomeController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HomeController.class);
 
     @RequestMapping("/")
     public String homePage(HttpSession session) {
-        log.debug("Loading home page for session [{}]", session.getId());
+        LOG.debug("Loading home page for session [{}]", session.getId());
 
         return "TASelectFC";
     }

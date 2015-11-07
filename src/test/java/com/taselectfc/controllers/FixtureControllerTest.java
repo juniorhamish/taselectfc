@@ -1,8 +1,12 @@
 package com.taselectfc.controllers;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -12,12 +16,13 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -45,7 +50,7 @@ public class FixtureControllerTest {
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        Mockito.reset(fixtureDAO);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         date = new Date();
@@ -59,31 +64,61 @@ public class FixtureControllerTest {
     public void shouldGetAllFixturesFromTheDAOAsJSON() throws Exception {
         when(fixtureDAO.getAllFixtures()).thenReturn(Arrays.asList(fixture1, fixture2));
 
-        mockMvc.perform(get("/fixtures")).andExpect(status().isOk()).andExpect(jsonPath("$.[0].id", is("1234")))
-                .andExpect(jsonPath("$.[0].venue", is("Firhill")))
-                .andExpect(jsonPath("$.[0].homeTeamName", is("Scotland")))
-                .andExpect(jsonPath("$.[0].awayTeamName", is("Germany")))
-                .andExpect(jsonPath("$.[0].homeTeamFlag", is("Scotland.jpg")))
-                .andExpect(jsonPath("$.[0].awayTeamFlag", is("Germany.jpg")))
-                .andExpect(jsonPath("$.[0].date", is(date.getTime()))).andExpect(jsonPath("$.[1].id", is("5678")))
-                .andExpect(jsonPath("$.[1].venue", is("Hampden")))
-                .andExpect(jsonPath("$.[1].homeTeamName", is("Poland")))
-                .andExpect(jsonPath("$.[1].awayTeamName", is("Scotland")))
-                .andExpect(jsonPath("$.[1].homeTeamFlag", is("Poland.jpg")))
-                .andExpect(jsonPath("$.[1].awayTeamFlag", is("Scotland.jpg")))
-                .andExpect(jsonPath("$.[1].date", is(date.getTime())));
+        ResultActions result = mockMvc.perform(get("/fixtures")).andExpect(status().isOk());
+
+        assertJsonContent(result, fixture1, fixture2);
     }
 
     @Test
     public void shouldGetFixtureByIdFromDAOAsJSON() throws Exception {
         when(fixtureDAO.getFixtureById("1234")).thenReturn(fixture1);
 
-        mockMvc.perform(get("/fixtures/1234")).andExpect(status().isOk()).andExpect(jsonPath("$.id", is("1234")))
-                .andExpect(jsonPath("$.venue", is("Firhill"))).andExpect(jsonPath("$.homeTeamName", is("Scotland")))
-                .andExpect(jsonPath("$.awayTeamName", is("Germany")))
-                .andExpect(jsonPath("$.homeTeamFlag", is("Scotland.jpg")))
-                .andExpect(jsonPath("$.awayTeamFlag", is("Germany.jpg")))
-                .andExpect(jsonPath("$.date", is(date.getTime())));
+        ResultActions result = mockMvc.perform(get("/fixtures/1234")).andExpect(status().isOk());
+
+        assertJsonContent(result, fixture1);
+    }
+
+    @Test
+    public void shouldGet404AndNoContentOnGetIfFixtureDoesNotExist() throws Exception {
+        when(fixtureDAO.getFixtureById("1234")).thenReturn(null);
+
+        mockMvc.perform(get("/fixtures/1234")).andExpect(status().is(404)).andExpect(content().string(""));
+    }
+
+    @Test
+    public void shouldUseDAOToDeleteFixtureByIdAndGetFixtureInResponse() throws Exception {
+        when(fixtureDAO.deleteFixtureById("1234")).thenReturn(fixture1);
+
+        ResultActions result = mockMvc.perform(delete("/fixtures/1234")).andExpect(status().isOk());
+
+        assertJsonContent(result, fixture1);
+        verify(fixtureDAO, only()).deleteFixtureById("1234");
+    }
+
+    @Test
+    public void shouldGet404AndNoContentOnDeleteIfFixtureDoesNotExist() throws Exception {
+        when(fixtureDAO.deleteFixtureById("1234")).thenReturn(null);
+
+        mockMvc.perform(delete("/fixtures/1234")).andExpect(status().is(404)).andExpect(content().string(""));
+    }
+
+    private void assertJsonContent(ResultActions result, Fixture... expectedFixtures) throws Exception {
+        String fixturePath = "";
+        if (expectedFixtures.length > 1) {
+            fixturePath = ".[%s]";
+        }
+
+        for (int i = 0; i < expectedFixtures.length; i++) {
+            Fixture fixture = expectedFixtures[i];
+            String currentFixturePath = String.format(fixturePath, i);
+            result.andExpect(jsonPath("$" + currentFixturePath + ".id", is(fixture.getId())))
+                    .andExpect(jsonPath("$" + currentFixturePath + ".venue", is(fixture.getVenue())))
+                    .andExpect(jsonPath("$" + currentFixturePath + ".homeTeamName", is(fixture.getHomeTeamName())))
+                    .andExpect(jsonPath("$" + currentFixturePath + ".awayTeamName", is(fixture.getAwayTeamName())))
+                    .andExpect(jsonPath("$" + currentFixturePath + ".homeTeamFlag", is(fixture.getHomeTeamFlag())))
+                    .andExpect(jsonPath("$" + currentFixturePath + ".awayTeamFlag", is(fixture.getAwayTeamFlag())))
+                    .andExpect(jsonPath("$" + currentFixturePath + ".date", is(fixture.getDate().getTime())));
+        }
     }
 
 }
