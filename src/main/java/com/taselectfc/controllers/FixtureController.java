@@ -19,12 +19,14 @@ public class FixtureController {
     private FixtureDAO fixtureDAO;
 
     @RequestMapping(value = "/fixtures")
-    public @ResponseBody List<Fixture> getAllFixtures() throws ParseException {
+    @ResponseBody
+    public List<Fixture> getAllFixtures() throws ParseException {
         return fixtureDAO.getAllFixtures();
     }
 
     @RequestMapping(value = "/fixtures/{id}")
-    public @ResponseBody Fixture getFixture(@PathVariable String id) throws ParseException {
+    @ResponseBody
+    public Fixture getFixture(@PathVariable String id) throws ParseException {
         return fixtureDAO.getFixtureById(id);
     }
 }
