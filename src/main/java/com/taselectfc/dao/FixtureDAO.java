@@ -12,5 +12,5 @@ public interface FixtureDAO {
 
     Fixture deleteFixtureById(String id);
 
-    Fixture save(Fixture fixture);
+    Fixture create(Fixture fixture);
 }

@@ -14,12 +14,14 @@
     <mvc:default-servlet-handler />
     <context:annotation-config />
 
-    <context:component-scan base-package="com.taselectfc.controllers" />
+    <context:component-scan base-package="com.taselectfc" />
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/views/" />
         <property name="suffix" value=".jsp" />
     </bean>
+
+    <bean id="idGenerator" class="org.springframework.util.JdkIdGenerator" />
 
     <bean id="fixtureDAO" class="com.taselectfc.dao.InMemoryFixtureDAO" />
 </beans>

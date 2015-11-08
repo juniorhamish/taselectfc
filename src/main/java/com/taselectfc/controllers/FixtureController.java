@@ -1,6 +1,7 @@
 package com.taselectfc.controllers;
 
 import java.text.ParseException;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -8,9 +9,8 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.IdGenerator;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,46 +28,46 @@ public class FixtureController {
     @Autowired
     private FixtureDAO fixtureDAO;
 
+    @Autowired
+    private IdGenerator idGenerator;
+
     @RequestMapping(value = "/fixtures", produces = "application/json")
     @ResponseBody
     public List<Fixture> getAllFixtures(HttpSession session) throws ParseException {
         LOG.debug("Getting fixture list for session [{}]", session.getId());
 
-        return fixtureDAO.getAllFixtures();
+        List<Fixture> fixtureList = fixtureDAO.getAllFixtures();
+        if (fixtureList == null) {
+            fixtureList = Collections.emptyList();
+        }
+        return fixtureList;
     }
 
     @RequestMapping(value = "/fixtures/{id}", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Fixture> getFixture(@PathVariable String id, HttpSession session) throws ParseException {
+    public Fixture getFixture(@PathVariable String id, HttpSession session) throws ParseException {
         LOG.debug("Getting fixture [{}] for session [{}]", id, session.getId());
 
-        HttpStatus requestStatus = HttpStatus.OK;
-        Fixture fixture = fixtureDAO.getFixtureById(id);
-
-        if (fixture == null) {
-            requestStatus = HttpStatus.NOT_FOUND;
-        }
-
-        return new ResponseEntity<>(fixture, requestStatus);
+        return fixtureDAO.getFixtureById(id);
     }
 
     @RequestMapping(value = "/fixtures/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Fixture> deleteFixture(@PathVariable String id, HttpSession session) {
+    @ResponseBody
+    public Fixture deleteFixture(@PathVariable String id, HttpSession session) {
         LOG.debug("Deleting fixture [{}] for session [{}]", id, session.getId());
 
-        HttpStatus requestStatus = HttpStatus.OK;
-        Fixture deletedFixture = fixtureDAO.deleteFixtureById(id);
-
-        if (deletedFixture == null) {
-            requestStatus = HttpStatus.NOT_FOUND;
-        }
-
-        return new ResponseEntity<>(deletedFixture, requestStatus);
+        return fixtureDAO.deleteFixtureById(id);
     }
 
     @RequestMapping(value = "/fixtures", method = RequestMethod.POST)
     @ResponseBody
-    public Fixture saveFixture(@RequestBody Fixture fixture) {
-        return fixtureDAO.save(fixture);
+    public Fixture saveFixture(@RequestBody Fixture fixture, HttpSession session) {
+        LOG.debug("Saving fixture [{}] for session [{}]", fixture.getId(), session.getId());
+
+        if (fixture.getId() == null) {
+            fixture.setId(idGenerator.generateId().toString());
+        }
+
+        return fixtureDAO.create(fixture);
     }
 }

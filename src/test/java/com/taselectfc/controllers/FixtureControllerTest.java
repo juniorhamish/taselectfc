@@ -1,9 +1,12 @@
 package com.taselectfc.controllers;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -12,24 +15,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.IdGenerator;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taselectfc.dao.FixtureDAO;
+import com.taselectfc.exception.DuplicateFixtureException;
+import com.taselectfc.exception.FixtureNotFoundException;
 import com.taselectfc.model.Fixture;
 import com.taselectfc.model.FixtureBuilder;
 
@@ -45,6 +52,9 @@ public class FixtureControllerTest {
 
     @Autowired
     private FixtureDAO fixtureDAO;
+
+    @Autowired
+    private IdGenerator idGenerator;
 
     private Fixture fixture1;
     private Fixture fixture2;
@@ -70,6 +80,20 @@ public class FixtureControllerTest {
     }
 
     @Test
+    public void shouldGetOkResponseEvenIfNoFixturesExist() throws Exception {
+        when(fixtureDAO.getAllFixtures()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/fixtures")).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    public void shouldGetOkResponseEvenIfFixtureListIsNull() throws Exception {
+        when(fixtureDAO.getAllFixtures()).thenReturn(null);
+
+        mockMvc.perform(get("/fixtures")).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
     public void shouldGetFixtureByIdFromDAOAsJSON() throws Exception {
         when(fixtureDAO.getFixtureById("1234")).thenReturn(fixture1);
 
@@ -80,9 +104,9 @@ public class FixtureControllerTest {
 
     @Test
     public void shouldGet404AndNoContentOnGetIfFixtureDoesNotExist() throws Exception {
-        when(fixtureDAO.getFixtureById("1234")).thenReturn(null);
+        doThrow(FixtureNotFoundException.class).when(fixtureDAO).getFixtureById("1234");
 
-        mockMvc.perform(get("/fixtures/1234")).andExpect(status().is(404)).andExpect(content().string(""));
+        mockMvc.perform(get("/fixtures/1234")).andExpect(status().isNotFound()).andExpect(content().string(""));
     }
 
     @Test
@@ -97,24 +121,54 @@ public class FixtureControllerTest {
 
     @Test
     public void shouldGet404AndNoContentOnDeleteIfFixtureDoesNotExist() throws Exception {
-        when(fixtureDAO.deleteFixtureById("1234")).thenReturn(null);
+        doThrow(FixtureNotFoundException.class).when(fixtureDAO).deleteFixtureById("1234");
 
-        mockMvc.perform(delete("/fixtures/1234")).andExpect(status().is(404)).andExpect(content().string(""));
+        mockMvc.perform(delete("/fixtures/1234")).andExpect(status().isNotFound()).andExpect(content().string(""));
     }
 
     @Test
     public void shouldSaveFixtureOnPostAndGetJsonBack() throws Exception {
-        Fixture newFixture = new FixtureBuilder().homeTeamName("Scotland").awayTeamName("Germany").build();
-        when(fixtureDAO.save(newFixture)).thenReturn(fixture1);
+        Fixture newFixture = new FixtureBuilder().id("ABC123").homeTeamName("Scotland").awayTeamName("Germany").build();
+        when(fixtureDAO.create(newFixture)).thenReturn(fixture1);
 
         ObjectMapper mapper = new ObjectMapper();
         String newFixtureJson = mapper.writeValueAsString(newFixture);
 
-        ResultActions result = mockMvc
-                .perform(post("/fixtures").contentType(MediaType.APPLICATION_JSON).content(newFixtureJson))
+        ResultActions result = mockMvc.perform(post("/fixtures").contentType(APPLICATION_JSON).content(newFixtureJson))
                 .andExpect(status().isOk());
 
         assertJsonContent(result, fixture1);
+    }
+
+    @Test
+    public void shouldAssignNewIdToFixtureIfNotProvidedInRequest() throws Exception {
+        Fixture newFixture = new FixtureBuilder().homeTeamName("Scotland").build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String newFixtureJson = mapper.writeValueAsString(newFixture);
+
+        UUID fixtureId = UUID.randomUUID();
+        newFixture.setId(fixtureId.toString());
+
+        when(idGenerator.generateId()).thenReturn(fixtureId);
+        when(fixtureDAO.create(newFixture)).thenReturn(fixture1);
+
+        ResultActions result = mockMvc.perform(post("/fixtures").contentType(APPLICATION_JSON).content(newFixtureJson))
+                .andExpect(status().isOk());
+
+        assertJsonContent(result, fixture1);
+    }
+
+    @Test
+    public void shouldGetConflictWhenPostingFixtureWithIdThatAlreadyExists() throws Exception {
+        Fixture newFixture = new FixtureBuilder().id("1234").homeTeamName("Scotland").build();
+        doThrow(DuplicateFixtureException.class).when(fixtureDAO).create(newFixture);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String newFixtureJson = mapper.writeValueAsString(newFixture);
+
+        mockMvc.perform(post("/fixtures").contentType(APPLICATION_JSON).content(newFixtureJson))
+                .andExpect(status().isConflict());
     }
 
     private void assertJsonContent(ResultActions result, Fixture... expectedFixtures) throws Exception {

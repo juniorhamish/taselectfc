@@ -34,7 +34,7 @@ public class InMemoryFixtureDAO implements FixtureDAO {
     }
 
     @Override
-    public Fixture save(Fixture fixture) {
+    public Fixture create(Fixture fixture) {
         // TODO Auto-generated method stub
         return null;
     }
