@@ -13,4 +13,8 @@ public interface FixtureDAO {
     Fixture deleteFixtureById(String id);
 
     Fixture create(Fixture fixture);
+
+    boolean exists(String id);
+
+    Fixture save(Fixture fixture);
 }

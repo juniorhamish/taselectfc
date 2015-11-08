@@ -10,6 +10,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -169,6 +170,70 @@ public class FixtureControllerTest {
 
         mockMvc.perform(post("/fixtures").contentType(APPLICATION_JSON).content(newFixtureJson))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void shouldCreateNewFixtureWhenPuttingAFixtureThatDoesNotExist() throws Exception {
+        Fixture newFixture = new FixtureBuilder().id("1234").homeTeamName("Scotland").build();
+
+        when(fixtureDAO.exists("1234")).thenReturn(false);
+        when(fixtureDAO.create(newFixture)).thenReturn(fixture1);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String newFixtureJson = mapper.writeValueAsString(newFixture);
+
+        ResultActions result = mockMvc
+                .perform(put("/fixtures/1234").contentType(APPLICATION_JSON).content(newFixtureJson))
+                .andExpect(status().isOk());
+
+        assertJsonContent(result, fixture1);
+        verify(fixtureDAO).create(newFixture);
+    }
+
+    @Test
+    public void shouldSaveFixtureWhenPuttingAFixtureThatAlreadyExists() throws Exception {
+        Fixture newFixture = new FixtureBuilder().id("1234").homeTeamName("Scotland").build();
+
+        when(fixtureDAO.exists("1234")).thenReturn(true);
+        when(fixtureDAO.save(newFixture)).thenReturn(fixture1);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String newFixtureJson = mapper.writeValueAsString(newFixture);
+
+        ResultActions result = mockMvc
+                .perform(put("/fixtures/1234").contentType(APPLICATION_JSON).content(newFixtureJson))
+                .andExpect(status().isOk());
+
+        assertJsonContent(result, fixture1);
+        verify(fixtureDAO).save(newFixture);
+    }
+
+    @Test
+    public void shouldGetBadRequestIfIdInURLDoesNotMatchIdInContent() throws Exception {
+        Fixture newFixture = new FixtureBuilder().id("1234").homeTeamName("Scotland").build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String newFixtureJson = mapper.writeValueAsString(newFixture);
+
+        mockMvc.perform(put("/fixtures/5678").contentType(APPLICATION_JSON).content(newFixtureJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldUseIdFromURIIfContentDoesNotSpecifyId() throws Exception {
+        Fixture newFixture = new FixtureBuilder().homeTeamName("Scotland").build();
+        String newFixtureJson = new ObjectMapper().writeValueAsString(newFixture);
+
+        when(fixtureDAO.exists("1234")).thenReturn(false);
+        newFixture.setId("1234");
+        when(fixtureDAO.create(newFixture)).thenReturn(fixture1);
+
+        ResultActions result = mockMvc
+                .perform(put("/fixtures/1234").contentType(APPLICATION_JSON).content(newFixtureJson))
+                .andExpect(status().isOk());
+
+        assertJsonContent(result, fixture1);
+        verify(fixtureDAO).create(newFixture);
     }
 
     private void assertJsonContent(ResultActions result, Fixture... expectedFixtures) throws Exception {

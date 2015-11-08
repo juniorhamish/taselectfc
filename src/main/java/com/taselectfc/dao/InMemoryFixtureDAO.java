@@ -39,4 +39,16 @@ public class InMemoryFixtureDAO implements FixtureDAO {
         return null;
     }
 
+    @Override
+    public boolean exists(String id) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public Fixture save(Fixture fixture) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

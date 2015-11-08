@@ -1,5 +1,10 @@
 package com.taselectfc.controllers;
 
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
@@ -14,10 +19,10 @@ import org.springframework.util.IdGenerator;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.taselectfc.dao.FixtureDAO;
+import com.taselectfc.exception.BadRequestException;
 import com.taselectfc.model.Fixture;
 
 @Controller
@@ -31,7 +36,7 @@ public class FixtureController {
     @Autowired
     private IdGenerator idGenerator;
 
-    @RequestMapping(value = "/fixtures", produces = "application/json")
+    @RequestMapping(value = "/fixtures", produces = "application/json", method = GET)
     @ResponseBody
     public List<Fixture> getAllFixtures(HttpSession session) throws ParseException {
         LOG.debug("Getting fixture list for session [{}]", session.getId());
@@ -43,7 +48,7 @@ public class FixtureController {
         return fixtureList;
     }
 
-    @RequestMapping(value = "/fixtures/{id}", produces = "application/json")
+    @RequestMapping(value = "/fixtures/{id}", produces = "application/json", method = GET)
     @ResponseBody
     public Fixture getFixture(@PathVariable String id, HttpSession session) throws ParseException {
         LOG.debug("Getting fixture [{}] for session [{}]", id, session.getId());
@@ -51,7 +56,7 @@ public class FixtureController {
         return fixtureDAO.getFixtureById(id);
     }
 
-    @RequestMapping(value = "/fixtures/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/fixtures/{id}", method = DELETE)
     @ResponseBody
     public Fixture deleteFixture(@PathVariable String id, HttpSession session) {
         LOG.debug("Deleting fixture [{}] for session [{}]", id, session.getId());
@@ -59,15 +64,35 @@ public class FixtureController {
         return fixtureDAO.deleteFixtureById(id);
     }
 
-    @RequestMapping(value = "/fixtures", method = RequestMethod.POST)
+    @RequestMapping(value = "/fixtures", method = POST)
     @ResponseBody
-    public Fixture saveFixture(@RequestBody Fixture fixture, HttpSession session) {
-        LOG.debug("Saving fixture [{}] for session [{}]", fixture.getId(), session.getId());
+    public Fixture createFixture(@RequestBody Fixture fixture, HttpSession session) {
+        LOG.debug("Creating fixture [{}] for session [{}]", fixture.getId(), session.getId());
 
         if (fixture.getId() == null) {
+            LOG.debug("New fixture assigned ID [{}] for session [{}]", fixture.getId(), session.getId());
+
             fixture.setId(idGenerator.generateId().toString());
         }
 
         return fixtureDAO.create(fixture);
+    }
+
+    @RequestMapping(value = "/fixtures/{id}", method = PUT)
+    @ResponseBody
+    public Fixture updateOrCreateFixture(@PathVariable String id, @RequestBody Fixture fixture, HttpSession session) {
+        LOG.debug("Putting fixture [{}] for session [{}]", id, session.getId());
+
+        if (fixture.getId() == null) {
+            fixture.setId(id);
+        } else if (!id.equals(fixture.getId())) {
+            LOG.warn("Attempting to PUT fixture [{}] at URL [{}] for session [{}]", fixture.getId(), id,
+                    session.getId());
+
+            throw new BadRequestException(
+                    String.format("PUT to /fixtures/%s but content has ID %s", id, fixture.getId()));
+        }
+
+        return fixtureDAO.exists(id) ? fixtureDAO.save(fixture) : fixtureDAO.create(fixture);
     }
 }
