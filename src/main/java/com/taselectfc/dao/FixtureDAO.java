@@ -11,4 +11,6 @@ public interface FixtureDAO {
     List<Fixture> getAllFixtures();
 
     Fixture deleteFixtureById(String id);
+
+    Fixture save(Fixture fixture);
 }

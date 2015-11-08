@@ -1,6 +1,8 @@
 package com.taselectfc.model;
 
 import java.util.Date;
+import java.util.Objects;
+import java.util.UUID;
 
 public class Fixture {
 
@@ -11,6 +13,10 @@ public class Fixture {
     private String homeTeamFlag;
     private String awayTeamFlag;
     private String venue;
+
+    public Fixture() {
+        this.id = UUID.randomUUID().toString();
+    }
 
     public String getId() {
         return id;
@@ -66,5 +72,28 @@ public class Fixture {
 
     public void setAwayTeamFlag(String awayTeamFlag) {
         this.awayTeamFlag = awayTeamFlag;
+    }
+
+    @Override
+    public String toString() {
+        return id + " - " + homeTeamName + " v " + awayTeamName;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Fixture)) {
+            return false;
+        }
+
+        Fixture other = (Fixture) obj;
+        return Objects.equals(id, other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

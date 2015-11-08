@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -26,6 +28,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taselectfc.dao.FixtureDAO;
 import com.taselectfc.model.Fixture;
 import com.taselectfc.model.FixtureBuilder;
@@ -46,18 +49,15 @@ public class FixtureControllerTest {
     private Fixture fixture1;
     private Fixture fixture2;
 
-    private Date date;
-
     @Before
     public void setup() {
         Mockito.reset(fixtureDAO);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
-        date = new Date();
-        fixture1 = new FixtureBuilder().id("1234").venue("Firhill").homeTeamName("Scotland").awayTeamName("Germany")
-                .homeTeamFlag("Scotland.jpg").awayTeamFlag("Germany.jpg").date(date).build();
-        fixture2 = new FixtureBuilder().id("5678").venue("Hampden").homeTeamName("Poland").awayTeamName("Scotland")
-                .homeTeamFlag("Poland.jpg").awayTeamFlag("Scotland.jpg").date(date).build();
+        fixture1 = new FixtureBuilder().venue("Firhill").homeTeamName("Scotland").awayTeamName("Germany")
+                .homeTeamFlag("Scotland.jpg").awayTeamFlag("Germany.jpg").date(new Date()).build();
+        fixture2 = new FixtureBuilder().venue("Hampden").homeTeamName("Poland").awayTeamName("Scotland")
+                .homeTeamFlag("Poland.jpg").awayTeamFlag("Scotland.jpg").date(new Date()).build();
     }
 
     @Test
@@ -100,6 +100,21 @@ public class FixtureControllerTest {
         when(fixtureDAO.deleteFixtureById("1234")).thenReturn(null);
 
         mockMvc.perform(delete("/fixtures/1234")).andExpect(status().is(404)).andExpect(content().string(""));
+    }
+
+    @Test
+    public void shouldSaveFixtureOnPostAndGetJsonBack() throws Exception {
+        Fixture newFixture = new FixtureBuilder().homeTeamName("Scotland").awayTeamName("Germany").build();
+        when(fixtureDAO.save(newFixture)).thenReturn(fixture1);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String newFixtureJson = mapper.writeValueAsString(newFixture);
+
+        ResultActions result = mockMvc
+                .perform(post("/fixtures").contentType(MediaType.APPLICATION_JSON).content(newFixtureJson))
+                .andExpect(status().isOk());
+
+        assertJsonContent(result, fixture1);
     }
 
     private void assertJsonContent(ResultActions result, Fixture... expectedFixtures) throws Exception {
