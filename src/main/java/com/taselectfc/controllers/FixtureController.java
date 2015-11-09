@@ -75,7 +75,9 @@ public class FixtureController {
             fixture.setId(idGenerator.generateId().toString());
         }
 
-        return fixtureDAO.create(fixture);
+        fixtureDAO.create(fixture);
+
+        return fixture;
     }
 
     @RequestMapping(value = "/fixtures/{id}", method = PUT)
@@ -93,6 +95,12 @@ public class FixtureController {
                     String.format("PUT to /fixtures/%s but content has ID %s", id, fixture.getId()));
         }
 
-        return fixtureDAO.exists(id) ? fixtureDAO.save(fixture) : fixtureDAO.create(fixture);
+        if (fixtureDAO.exists(id)) {
+            fixtureDAO.save(fixture);
+        } else {
+            fixtureDAO.create(fixture);
+        }
+
+        return fixture;
     }
 }

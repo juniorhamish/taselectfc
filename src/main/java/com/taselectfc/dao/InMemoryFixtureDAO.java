@@ -5,50 +5,64 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.taselectfc.exception.DuplicateFixtureException;
+import com.taselectfc.exception.FixtureNotFoundException;
 import com.taselectfc.model.Fixture;
 
 public class InMemoryFixtureDAO implements FixtureDAO {
 
-    private static final Map<String, Fixture> FIXTURES = new TreeMap<>();
+    private Map<String, Fixture> fixtures = new TreeMap<>();
 
     @Override
     public Fixture getFixtureById(String id) {
-        return FIXTURES.get(id);
+        Fixture fixture = fixtures.get(id);
+
+        if (fixture == null) {
+            throw new FixtureNotFoundException();
+        }
+
+        return fixture;
     }
 
     @Override
     public List<Fixture> getAllFixtures() {
-        List<Fixture> fixtures = new ArrayList<>();
+        List<Fixture> allFixtures = new ArrayList<>();
 
-        for (Fixture fixture : FIXTURES.values()) {
-            fixtures.add(fixture);
+        for (Fixture fixture : fixtures.values()) {
+            allFixtures.add(fixture);
         }
 
-        return fixtures;
+        return allFixtures;
     }
 
     @Override
     public Fixture deleteFixtureById(String id) {
-        // TODO Auto-generated method stub
-        return null;
+        Fixture deletedFixture = fixtures.remove(id);
+
+        if (deletedFixture == null) {
+            throw new FixtureNotFoundException();
+        }
+
+        return deletedFixture;
     }
 
     @Override
-    public Fixture create(Fixture fixture) {
-        // TODO Auto-generated method stub
-        return null;
+    public void create(Fixture fixture) {
+        if (fixtures.containsKey(fixture.getId())) {
+            throw new DuplicateFixtureException();
+        }
+
+        fixtures.put(fixture.getId(), fixture);
     }
 
     @Override
     public boolean exists(String id) {
-        // TODO Auto-generated method stub
-        return false;
+        return fixtures.containsKey(id);
     }
 
     @Override
-    public Fixture save(Fixture fixture) {
-        // TODO Auto-generated method stub
-        return null;
+    public void save(Fixture fixture) {
+        fixtures.put(fixture.getId(), fixture);
     }
 
 }

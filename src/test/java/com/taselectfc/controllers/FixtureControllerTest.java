@@ -130,7 +130,6 @@ public class FixtureControllerTest {
     @Test
     public void shouldSaveFixtureOnPostAndGetJsonBack() throws Exception {
         Fixture newFixture = new FixtureBuilder().id("ABC123").homeTeamName("Scotland").awayTeamName("Germany").build();
-        when(fixtureDAO.create(newFixture)).thenReturn(fixture1);
 
         ObjectMapper mapper = new ObjectMapper();
         String newFixtureJson = mapper.writeValueAsString(newFixture);
@@ -138,7 +137,7 @@ public class FixtureControllerTest {
         ResultActions result = mockMvc.perform(post("/fixtures").contentType(APPLICATION_JSON).content(newFixtureJson))
                 .andExpect(status().isOk());
 
-        assertJsonContent(result, fixture1);
+        assertJsonContent(result, newFixture);
     }
 
     @Test
@@ -152,12 +151,11 @@ public class FixtureControllerTest {
         newFixture.setId(fixtureId.toString());
 
         when(idGenerator.generateId()).thenReturn(fixtureId);
-        when(fixtureDAO.create(newFixture)).thenReturn(fixture1);
 
         ResultActions result = mockMvc.perform(post("/fixtures").contentType(APPLICATION_JSON).content(newFixtureJson))
                 .andExpect(status().isOk());
 
-        assertJsonContent(result, fixture1);
+        assertJsonContent(result, newFixture);
     }
 
     @Test
@@ -177,7 +175,6 @@ public class FixtureControllerTest {
         Fixture newFixture = new FixtureBuilder().id("1234").homeTeamName("Scotland").build();
 
         when(fixtureDAO.exists("1234")).thenReturn(false);
-        when(fixtureDAO.create(newFixture)).thenReturn(fixture1);
 
         ObjectMapper mapper = new ObjectMapper();
         String newFixtureJson = mapper.writeValueAsString(newFixture);
@@ -186,7 +183,7 @@ public class FixtureControllerTest {
                 .perform(put("/fixtures/1234").contentType(APPLICATION_JSON).content(newFixtureJson))
                 .andExpect(status().isOk());
 
-        assertJsonContent(result, fixture1);
+        assertJsonContent(result, newFixture);
         verify(fixtureDAO).create(newFixture);
     }
 
@@ -195,7 +192,6 @@ public class FixtureControllerTest {
         Fixture newFixture = new FixtureBuilder().id("1234").homeTeamName("Scotland").build();
 
         when(fixtureDAO.exists("1234")).thenReturn(true);
-        when(fixtureDAO.save(newFixture)).thenReturn(fixture1);
 
         ObjectMapper mapper = new ObjectMapper();
         String newFixtureJson = mapper.writeValueAsString(newFixture);
@@ -204,7 +200,7 @@ public class FixtureControllerTest {
                 .perform(put("/fixtures/1234").contentType(APPLICATION_JSON).content(newFixtureJson))
                 .andExpect(status().isOk());
 
-        assertJsonContent(result, fixture1);
+        assertJsonContent(result, newFixture);
         verify(fixtureDAO).save(newFixture);
     }
 
@@ -226,13 +222,12 @@ public class FixtureControllerTest {
 
         when(fixtureDAO.exists("1234")).thenReturn(false);
         newFixture.setId("1234");
-        when(fixtureDAO.create(newFixture)).thenReturn(fixture1);
 
         ResultActions result = mockMvc
                 .perform(put("/fixtures/1234").contentType(APPLICATION_JSON).content(newFixtureJson))
                 .andExpect(status().isOk());
 
-        assertJsonContent(result, fixture1);
+        assertJsonContent(result, newFixture);
         verify(fixtureDAO).create(newFixture);
     }
 
@@ -250,8 +245,11 @@ public class FixtureControllerTest {
                     .andExpect(jsonPath("$" + currentFixturePath + ".homeTeamName", is(fixture.getHomeTeamName())))
                     .andExpect(jsonPath("$" + currentFixturePath + ".awayTeamName", is(fixture.getAwayTeamName())))
                     .andExpect(jsonPath("$" + currentFixturePath + ".homeTeamFlag", is(fixture.getHomeTeamFlag())))
-                    .andExpect(jsonPath("$" + currentFixturePath + ".awayTeamFlag", is(fixture.getAwayTeamFlag())))
-                    .andExpect(jsonPath("$" + currentFixturePath + ".date", is(fixture.getDate().getTime())));
+                    .andExpect(jsonPath("$" + currentFixturePath + ".awayTeamFlag", is(fixture.getAwayTeamFlag())));
+
+            if (fixture.getDate() != null) {
+                result.andExpect(jsonPath("$" + currentFixturePath + ".date", is(fixture.getDate().getTime())));
+            }
         }
     }
 
