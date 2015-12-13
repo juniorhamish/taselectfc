@@ -1,11 +1,11 @@
 package com.taselectfc.model;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 public class FixtureBuilder {
 
     private String id;
-    private Date date;
+    private ZonedDateTime date;
     private String homeTeamName;
     private String awayTeamName;
     private String homeTeamFlag;
@@ -18,8 +18,8 @@ public class FixtureBuilder {
         return this;
     }
 
-    public FixtureBuilder date(Date date) {
-        this.date = date;
+    public FixtureBuilder date(ZonedDateTime kickOff) {
+        this.date = kickOff;
 
         return this;
     }
@@ -57,7 +57,7 @@ public class FixtureBuilder {
     public Fixture build() {
         Fixture fixture = new Fixture();
         fixture.setId(id);
-        fixture.setDate(date);
+        fixture.setKickoff(date);
         fixture.setHomeTeamName(homeTeamName);
         fixture.setAwayTeamName(awayTeamName);
         fixture.setHomeTeamFlag(homeTeamFlag);

@@ -1,20 +1,9 @@
 package com.taselectfc.dao;
 
-import java.util.List;
+import org.springframework.data.repository.CrudRepository;
 
 import com.taselectfc.model.Fixture;
 
-public interface FixtureDAO {
+public interface FixtureDAO extends CrudRepository<Fixture, String> {
 
-    Fixture getFixtureById(String id);
-
-    List<Fixture> getAllFixtures();
-
-    Fixture deleteFixtureById(String id);
-
-    void create(Fixture fixture);
-
-    boolean exists(String id);
-
-    void save(Fixture fixture);
 }

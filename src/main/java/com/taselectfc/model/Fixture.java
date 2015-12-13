@@ -1,21 +1,34 @@
 package com.taselectfc.model;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+@Entity
 public class Fixture {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Fixture.class);
+
+    @Id
     private String id;
-    private Date date;
+    private ZonedDateTime kickoff;
     private String homeTeamName;
     private String awayTeamName;
     private String homeTeamFlag;
     private String awayTeamFlag;
     private String venue;
 
-    public Fixture() {
+    protected Fixture() {
         this.id = UUID.randomUUID().toString();
+        LOG.debug("Created a fixture and assigned it id {}", id);
     }
 
     public String getId() {
@@ -50,12 +63,13 @@ public class Fixture {
         this.homeTeamName = homeTeamName;
     }
 
-    public Date getDate() {
-        return date;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    public ZonedDateTime getKickoff() {
+        return kickoff;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setKickoff(ZonedDateTime date) {
+        this.kickoff = date;
     }
 
     public String getHomeTeamFlag() {
