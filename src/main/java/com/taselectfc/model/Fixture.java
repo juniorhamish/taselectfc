@@ -7,15 +7,10 @@ import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 public class Fixture {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Fixture.class);
 
     @Id
     private String id;
@@ -28,7 +23,6 @@ public class Fixture {
 
     protected Fixture() {
         this.id = UUID.randomUUID().toString();
-        LOG.debug("Created a fixture and assigned it id {}", id);
     }
 
     public String getId() {
