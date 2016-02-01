@@ -43,6 +43,7 @@ import com.taselectfc.config.TestContext;
 import com.taselectfc.dao.FixtureDAO;
 import com.taselectfc.model.Fixture;
 import com.taselectfc.model.FixtureBuilder;
+import com.taselectfc.model.Team;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = { TestContext.class, Application.class })
@@ -60,6 +61,9 @@ public class FixtureControllerTest {
 
     private Fixture fixture1;
     private Fixture fixture2;
+    private Team scotland;
+    private Team germany;
+    private Team poland;
 
     @Before
     public void setup() {
@@ -69,10 +73,20 @@ public class FixtureControllerTest {
         ZonedDateTime kickOff = ZonedDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(15, 00),
                 ZoneId.of("GMT"));
 
-        fixture1 = new FixtureBuilder().venue("Firhill").homeTeamName("Scotland").awayTeamName("Germany")
-                .homeTeamFlag("Scotland.jpg").awayTeamFlag("Germany.jpg").date(kickOff).build();
-        fixture2 = new FixtureBuilder().venue("Hampden").homeTeamName("Poland").awayTeamName("Scotland")
-                .homeTeamFlag("Poland.jpg").awayTeamFlag("Scotland.jpg").date(kickOff).build();
+        scotland = new Team();
+        scotland.setName("Scotland");
+        scotland.setFlagName("Scotland.jpg");
+
+        germany = new Team();
+        germany.setName("Germany");
+        germany.setFlagName("Germany.jpg");
+
+        poland = new Team();
+        poland.setName("Poland");
+        poland.setFlagName("Poland.jpg");
+
+        fixture1 = new FixtureBuilder().venue("Firhill").homeTeam(scotland).awayTeam(germany).date(kickOff).build();
+        fixture2 = new FixtureBuilder().venue("Hampden").homeTeam(poland).awayTeam(scotland).date(kickOff).build();
     }
 
     @Test
@@ -133,7 +147,7 @@ public class FixtureControllerTest {
 
     @Test
     public void shouldSaveFixtureOnPostAndGetJsonBack() throws Exception {
-        Fixture newFixture = new FixtureBuilder().id("ABC123").homeTeamName("Scotland").awayTeamName("Germany").build();
+        Fixture newFixture = new FixtureBuilder().id("ABC123").homeTeam(scotland).awayTeam(germany).build();
         when(fixtureDAO.save(newFixture)).thenReturn(fixture1);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -147,7 +161,7 @@ public class FixtureControllerTest {
 
     @Test
     public void shouldGetConflictWhenPostingFixtureWithIdThatAlreadyExists() throws Exception {
-        Fixture newFixture = new FixtureBuilder().id("1234").homeTeamName("Scotland").build();
+        Fixture newFixture = new FixtureBuilder().id("1234").homeTeam(scotland).build();
         when(fixtureDAO.exists("1234")).thenReturn(true);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -159,7 +173,7 @@ public class FixtureControllerTest {
 
     @Test
     public void shouldSaveFixtureWhenPuttingAFixture() throws Exception {
-        Fixture newFixture = new FixtureBuilder().id("1234").homeTeamName("Scotland").build();
+        Fixture newFixture = new FixtureBuilder().id("1234").homeTeam(scotland).build();
 
         when(fixtureDAO.save(newFixture)).thenReturn(fixture1);
 
@@ -175,7 +189,7 @@ public class FixtureControllerTest {
 
     @Test
     public void shouldUseIdInURLIfItDoesNotMatchIdInContent() throws Exception {
-        Fixture newFixture = new FixtureBuilder().id("1234").homeTeamName("Scotland").build();
+        Fixture newFixture = new FixtureBuilder().id("1234").homeTeam(scotland).build();
         String newFixtureJson = new ObjectMapper().writeValueAsString(newFixture);
 
         newFixture.setId("5678");
@@ -190,7 +204,7 @@ public class FixtureControllerTest {
 
     @Test
     public void shouldUseIdFromURIIfContentDoesNotSpecifyId() throws Exception {
-        Fixture newFixture = new FixtureBuilder().homeTeamName("Scotland").build();
+        Fixture newFixture = new FixtureBuilder().homeTeam(scotland).build();
         String newFixtureJson = new ObjectMapper().writeValueAsString(newFixture);
 
         newFixture.setId("1234");
@@ -204,25 +218,37 @@ public class FixtureControllerTest {
     }
 
     private void assertJsonContent(ResultActions result, Fixture... expectedFixtures) throws Exception {
-        String fixturePath = "";
+        String fixturePath = "$";
         if (expectedFixtures.length > 1) {
-            fixturePath = ".[%s]";
+            fixturePath += ".[%s]";
         }
 
         for (int i = 0; i < expectedFixtures.length; i++) {
             Fixture fixture = expectedFixtures[i];
             String currentFixturePath = String.format(fixturePath, i);
-            result.andExpect(jsonPath("$" + currentFixturePath + ".id", is(fixture.getId())))
-                    .andExpect(jsonPath("$" + currentFixturePath + ".venue", is(fixture.getVenue())))
-                    .andExpect(jsonPath("$" + currentFixturePath + ".homeTeamName", is(fixture.getHomeTeamName())))
-                    .andExpect(jsonPath("$" + currentFixturePath + ".awayTeamName", is(fixture.getAwayTeamName())))
-                    .andExpect(jsonPath("$" + currentFixturePath + ".homeTeamFlag", is(fixture.getHomeTeamFlag())))
-                    .andExpect(jsonPath("$" + currentFixturePath + ".awayTeamFlag", is(fixture.getAwayTeamFlag())));
 
-            if (fixture.getKickoff() != null) {
-                result.andExpect(jsonPath("$" + currentFixturePath + ".kickoff",
-                        is(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(fixture.getKickoff()))));
-            }
+            assertFixtureJson(result, currentFixturePath, fixture);
+            assertTeamJson(result, currentFixturePath + ".homeTeam", fixture.getHomeTeam());
+            assertTeamJson(result, currentFixturePath + ".awayTeam", fixture.getAwayTeam());
+
+        }
+    }
+
+    private void assertFixtureJson(ResultActions result, String jsonPath, Fixture fixture) throws Exception {
+        result.andExpect(jsonPath(jsonPath + ".id", is(fixture.getId())))
+                .andExpect(jsonPath(jsonPath + ".venue", is(fixture.getVenue())));
+
+        if (fixture.getKickoff() != null) {
+            result.andExpect(jsonPath(jsonPath + ".kickoff",
+                    is(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(fixture.getKickoff()))));
+        }
+    }
+
+    private void assertTeamJson(ResultActions result, String teamJsonPath, Team team) throws Exception {
+        if (team != null) {
+            result.andExpect(jsonPath(teamJsonPath + ".id", is(team.getId())))
+                    .andExpect(jsonPath(teamJsonPath + ".name", is(team.getName())))
+                    .andExpect(jsonPath(teamJsonPath + ".flagName", is(team.getFlagName())));
         }
     }
 

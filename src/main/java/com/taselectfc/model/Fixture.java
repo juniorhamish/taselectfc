@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -15,10 +16,10 @@ public class Fixture {
     @Id
     private String id;
     private ZonedDateTime kickoff;
-    private String homeTeamName;
-    private String awayTeamName;
-    private String homeTeamFlag;
-    private String awayTeamFlag;
+    @ManyToOne
+    private Team homeTeam;
+    @ManyToOne
+    private Team awayTeam;
     private String venue;
 
     protected Fixture() {
@@ -41,20 +42,20 @@ public class Fixture {
         this.venue = venue;
     }
 
-    public String getAwayTeamName() {
-        return awayTeamName;
+    public Team getAwayTeam() {
+        return awayTeam;
     }
 
-    public void setAwayTeamName(String awayTeamName) {
-        this.awayTeamName = awayTeamName;
+    public void setAwayTeam(Team awayTeam) {
+        this.awayTeam = awayTeam;
     }
 
-    public String getHomeTeamName() {
-        return homeTeamName;
+    public Team getHomeTeam() {
+        return homeTeam;
     }
 
-    public void setHomeTeamName(String homeTeamName) {
-        this.homeTeamName = homeTeamName;
+    public void setHomeTeam(Team homeTeam) {
+        this.homeTeam = homeTeam;
     }
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -66,25 +67,9 @@ public class Fixture {
         this.kickoff = date;
     }
 
-    public String getHomeTeamFlag() {
-        return homeTeamFlag;
-    }
-
-    public void setHomeTeamFlag(String homeTeamFlag) {
-        this.homeTeamFlag = homeTeamFlag;
-    }
-
-    public String getAwayTeamFlag() {
-        return awayTeamFlag;
-    }
-
-    public void setAwayTeamFlag(String awayTeamFlag) {
-        this.awayTeamFlag = awayTeamFlag;
-    }
-
     @Override
     public String toString() {
-        return id + " - " + homeTeamName + " v " + awayTeamName;
+        return id + " - " + homeTeam + " v " + awayTeam;
     }
 
     @Override
