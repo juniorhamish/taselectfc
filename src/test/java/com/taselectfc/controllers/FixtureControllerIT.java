@@ -49,7 +49,7 @@ import com.taselectfc.model.Team;
 @SpringApplicationConfiguration(classes = { TestContext.class, Application.class })
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
-public class FixtureControllerTest {
+public class FixtureControllerIT {
 
     private MockMvc mockMvc;
 
