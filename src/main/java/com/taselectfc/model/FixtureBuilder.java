@@ -6,10 +6,8 @@ public class FixtureBuilder {
 
     private String id;
     private ZonedDateTime date;
-    private String homeTeamName;
-    private String awayTeamName;
-    private String homeTeamFlag;
-    private String awayTeamFlag;
+    private Team homeTeam;
+    private Team awayTeam;
     private String venue;
 
     public FixtureBuilder id(String id) {
@@ -24,26 +22,14 @@ public class FixtureBuilder {
         return this;
     }
 
-    public FixtureBuilder homeTeamName(String homeTeamName) {
-        this.homeTeamName = homeTeamName;
+    public FixtureBuilder homeTeam(Team homeTeam) {
+        this.homeTeam = homeTeam;
 
         return this;
     }
 
-    public FixtureBuilder awayTeamName(String awayTeamName) {
-        this.awayTeamName = awayTeamName;
-
-        return this;
-    }
-
-    public FixtureBuilder homeTeamFlag(String homeTeamFlag) {
-        this.homeTeamFlag = homeTeamFlag;
-
-        return this;
-    }
-
-    public FixtureBuilder awayTeamFlag(String awayTeamFlag) {
-        this.awayTeamFlag = awayTeamFlag;
+    public FixtureBuilder awayTeam(Team awayTeam) {
+        this.awayTeam = awayTeam;
 
         return this;
     }
@@ -58,10 +44,8 @@ public class FixtureBuilder {
         Fixture fixture = new Fixture();
         fixture.setId(id);
         fixture.setKickoff(date);
-        fixture.setHomeTeamName(homeTeamName);
-        fixture.setAwayTeamName(awayTeamName);
-        fixture.setHomeTeamFlag(homeTeamFlag);
-        fixture.setAwayTeamFlag(awayTeamFlag);
+        fixture.setHomeTeam(homeTeam);
+        fixture.setAwayTeam(awayTeam);
         fixture.setVenue(venue);
 
         return fixture;

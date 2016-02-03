@@ -23,7 +23,7 @@ import com.taselectfc.Application;
 @SpringApplicationConfiguration(classes = { Application.class })
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
-public class HomeControllerTest {
+public class HomeControllerIT {
 
     private MockMvc mockMvc;
 

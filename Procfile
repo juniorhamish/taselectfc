@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -jar  target/taselectfc-*.jar
+web: java -Dserver.port=$PORT -jar  target/taselectfc-*.war
