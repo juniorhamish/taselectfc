@@ -8,11 +8,8 @@ public class FixtureTest {
 
     @Test
     public void validateEqualsAndHashcodeImplementation() {
-        new EqualsTester()
-                .addEqualityGroup(new FixtureBuilder().id("1234").build(), new FixtureBuilder().id("1234").build())
-                .addEqualityGroup(new FixtureBuilder().id("5678").homeTeam(new Team()).build(),
-                        new FixtureBuilder().id("5678").homeTeam(new Team()).build())
-                .testEquals();
+        new EqualsTester().addEqualityGroup(new Fixture(1234L), new Fixture(1234L))
+                .addEqualityGroup(new Fixture(5678L), new Fixture(5678L)).testEquals();
     }
 
 }

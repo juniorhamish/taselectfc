@@ -41,7 +41,6 @@ import com.taselectfc.Application;
 import com.taselectfc.config.MockDAOTestContext;
 import com.taselectfc.dao.FixtureDAO;
 import com.taselectfc.model.Fixture;
-import com.taselectfc.model.FixtureBuilder;
 import com.taselectfc.model.Team;
 
 @ActiveProfiles("mock-dao")
@@ -84,8 +83,8 @@ public class FixtureControllerIT {
         poland.setName("Poland");
         poland.setFlagName("Poland.jpg");
 
-        fixture1 = new FixtureBuilder().venue("Firhill").homeTeam(scotland).awayTeam(germany).date(kickOff).build();
-        fixture2 = new FixtureBuilder().venue("Hampden").homeTeam(poland).awayTeam(scotland).date(kickOff).build();
+        fixture1 = new Fixture.Builder().venue("Firhill").homeTeam(scotland).awayTeam(germany).date(kickOff).build();
+        fixture2 = new Fixture.Builder().venue("Hampden").homeTeam(poland).awayTeam(scotland).date(kickOff).build();
     }
 
     @Test
@@ -139,7 +138,7 @@ public class FixtureControllerIT {
 
     @Test
     public void shouldSaveFixtureOnPostAndGetJsonBack() throws Exception {
-        Fixture newFixture = new FixtureBuilder().id("ABC123").homeTeam(scotland).awayTeam(germany).build();
+        Fixture newFixture = new Fixture.Builder().homeTeam(scotland).awayTeam(germany).build();
         when(fixtureDAO.save(newFixture)).thenReturn(fixture1);
 
         ObjectMapper mapper = new ObjectMapper();

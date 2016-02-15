@@ -90,7 +90,7 @@ public class FixtureControllerTest {
 
     @Test
     public void shouldSaveFixtureOnCreate() {
-        when(fixture1.getId()).thenReturn("7");
+        when(fixture1.getId()).thenReturn(7L);
         fixtureController.createFixture(fixture1, session);
 
         verify(fixtureDAO).save(fixture1);
