@@ -3,9 +3,6 @@ package com.taselectfc.controllers;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
-
-import java.util.Collections;
 
 import javax.servlet.http.HttpSession;
 
@@ -18,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.taselectfc.dao.FixtureDAO;
-import com.taselectfc.exception.DuplicateFixtureException;
 import com.taselectfc.exception.FixtureNotFoundException;
 import com.taselectfc.model.Fixture;
 
@@ -34,12 +30,7 @@ public class FixtureController {
     public Iterable<Fixture> getAllFixtures(HttpSession session) {
         LOG.debug("Getting fixture list for session [{}]", session.getId());
 
-        Iterable<Fixture> fixtureList = fixtureDAO.findAll();
-        if (fixtureList == null) {
-            fixtureList = Collections.emptyList();
-        }
-
-        return fixtureList;
+        return fixtureDAO.findAll();
     }
 
     @RequestMapping(value = "/fixtures/{id}", produces = "application/json", method = GET)
@@ -67,19 +58,6 @@ public class FixtureController {
     @RequestMapping(value = "/fixtures", method = POST)
     public Fixture createFixture(@RequestBody Fixture fixture, HttpSession session) {
         LOG.debug("Creating fixture [{}] for session [{}]", fixture.getId(), session.getId());
-
-        if (fixtureDAO.exists(fixture.getId())) {
-            throw new DuplicateFixtureException();
-        }
-
-        return fixtureDAO.save(fixture);
-    }
-
-    @RequestMapping(value = "/fixtures/{id}", method = PUT)
-    public Fixture updateOrCreateFixture(@PathVariable String id, @RequestBody Fixture fixture, HttpSession session) {
-        LOG.debug("Putting fixture [{}] for session [{}]", id, session.getId());
-
-        fixture.setId(id);
 
         return fixtureDAO.save(fixture);
     }

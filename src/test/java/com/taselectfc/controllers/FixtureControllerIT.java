@@ -9,7 +9,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,10 +27,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -39,16 +38,16 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taselectfc.Application;
-import com.taselectfc.config.TestContext;
+import com.taselectfc.config.MockDAOTestContext;
 import com.taselectfc.dao.FixtureDAO;
 import com.taselectfc.model.Fixture;
 import com.taselectfc.model.FixtureBuilder;
 import com.taselectfc.model.Team;
 
+@ActiveProfiles("mock-dao")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = { TestContext.class, Application.class })
-@WebAppConfiguration
-@IntegrationTest("server.port:0")
+@SpringApplicationConfiguration(classes = { MockDAOTestContext.class, Application.class })
+@WebIntegrationTest(randomPort = true)
 public class FixtureControllerIT {
 
     private MockMvc mockMvc;
@@ -106,13 +105,6 @@ public class FixtureControllerIT {
     }
 
     @Test
-    public void shouldGetOkResponseEvenIfFixtureListIsNull() throws Exception {
-        when(fixtureDAO.findAll()).thenReturn(null);
-
-        mockMvc.perform(get("/fixtures")).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(0)));
-    }
-
-    @Test
     public void shouldGetFixtureByIdFromDAOAsJSON() throws Exception {
         when(fixtureDAO.findOne("1234")).thenReturn(fixture1);
 
@@ -157,64 +149,6 @@ public class FixtureControllerIT {
                 .andExpect(status().isOk());
 
         assertJsonContent(result, fixture1);
-    }
-
-    @Test
-    public void shouldGetConflictWhenPostingFixtureWithIdThatAlreadyExists() throws Exception {
-        Fixture newFixture = new FixtureBuilder().id("1234").homeTeam(scotland).build();
-        when(fixtureDAO.exists("1234")).thenReturn(true);
-
-        ObjectMapper mapper = new ObjectMapper();
-        String newFixtureJson = mapper.writeValueAsString(newFixture);
-
-        mockMvc.perform(post("/fixtures").contentType(APPLICATION_JSON).content(newFixtureJson))
-                .andExpect(status().isConflict());
-    }
-
-    @Test
-    public void shouldSaveFixtureWhenPuttingAFixture() throws Exception {
-        Fixture newFixture = new FixtureBuilder().id("1234").homeTeam(scotland).build();
-
-        when(fixtureDAO.save(newFixture)).thenReturn(fixture1);
-
-        ObjectMapper mapper = new ObjectMapper();
-        String newFixtureJson = mapper.writeValueAsString(newFixture);
-
-        ResultActions result = mockMvc
-                .perform(put("/fixtures/1234").contentType(APPLICATION_JSON).content(newFixtureJson))
-                .andExpect(status().isOk());
-
-        assertJsonContent(result, fixture1);
-    }
-
-    @Test
-    public void shouldUseIdInURLIfItDoesNotMatchIdInContent() throws Exception {
-        Fixture newFixture = new FixtureBuilder().id("1234").homeTeam(scotland).build();
-        String newFixtureJson = new ObjectMapper().writeValueAsString(newFixture);
-
-        newFixture.setId("5678");
-        when(fixtureDAO.save(newFixture)).thenReturn(newFixture);
-
-        ResultActions result = mockMvc
-                .perform(put("/fixtures/5678").contentType(APPLICATION_JSON).content(newFixtureJson))
-                .andExpect(status().isOk());
-
-        assertJsonContent(result, newFixture);
-    }
-
-    @Test
-    public void shouldUseIdFromURIIfContentDoesNotSpecifyId() throws Exception {
-        Fixture newFixture = new FixtureBuilder().homeTeam(scotland).build();
-        String newFixtureJson = new ObjectMapper().writeValueAsString(newFixture);
-
-        newFixture.setId("1234");
-        when(fixtureDAO.save(newFixture)).thenReturn(newFixture);
-
-        ResultActions result = mockMvc
-                .perform(put("/fixtures/1234").contentType(APPLICATION_JSON).content(newFixtureJson))
-                .andExpect(status().isOk());
-
-        assertJsonContent(result, newFixture);
     }
 
     private void assertJsonContent(ResultActions result, Fixture... expectedFixtures) throws Exception {
