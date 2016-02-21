@@ -1,44 +1,61 @@
 package com.taselectfc.model;
 
-import java.util.UUID;
-
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
 public class Team {
 
     @Id
-    private String id;
+    @GeneratedValue
+    private Long id;
     private String name;
     private String flagName;
 
-    public Team() {
-        this.id = UUID.randomUUID().toString();
+    Team() {
+        // Required for JSON deserialisation.
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
+    protected Team(Long id) {
         this.id = id;
+    }
+
+    private Team(String name, String flagName) {
+        this.name = name;
+        this.flagName = flagName;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getFlagName() {
         return flagName;
     }
 
-    public void setFlagName(String flagName) {
-        this.flagName = flagName;
+    public static class Builder {
+
+        private String name;
+        private String flagName;
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder flagName(String flagName) {
+            this.flagName = flagName;
+            return this;
+        }
+
+        public Team build() {
+            return new Team(name, flagName);
+        }
     }
 
 }
