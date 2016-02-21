@@ -8,8 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
-import javax.servlet.http.HttpSession;
-
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,6 +17,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import com.taselectfc.dao.FixtureDAO;
 import com.taselectfc.exception.FixtureNotFoundException;
@@ -36,62 +37,69 @@ public class FixtureControllerTest {
     private FixtureController fixtureController;
 
     @Mock
-    private HttpSession session;
-    @Mock
     private Fixture fixture1;
     @Mock
     private Fixture fixture2;
 
+    @Mock
+    private RequestAttributes requestAttributes;
+
     @Before
     public void setup() {
-        when(session.getId()).thenReturn("1");
+        when(requestAttributes.getSessionId()).thenReturn("MockSession");
+        RequestContextHolder.setRequestAttributes(requestAttributes);
+    }
+
+    @After
+    public void teardown() {
+        RequestContextHolder.resetRequestAttributes();
     }
 
     @Test
     public void shouldGetAllFixturesFromDAO() {
         when(fixtureDAO.findAll()).thenReturn(Arrays.asList(fixture1, fixture2));
 
-        assertThat(fixtureController.getAllFixtures(session), contains(fixture1, fixture2));
+        assertThat(fixtureController.getAllFixtures(), contains(fixture1, fixture2));
     }
 
     @Test
     public void shouldGetFixtureByIdFromDAO() {
-        when(fixtureDAO.findOne("1")).thenReturn(fixture1);
+        when(fixtureDAO.findOne(1L)).thenReturn(fixture1);
 
-        assertThat(fixtureController.getFixture("1", session), is(fixture1));
+        assertThat(fixtureController.getFixture("1"), is(fixture1));
     }
 
     @Test
     public void shouldThrowExceptionIfFixtureDoesNotExist() {
-        when(fixtureDAO.findOne("1")).thenReturn(null);
+        when(fixtureDAO.findOne(1L)).thenReturn(null);
 
         exception.expect(FixtureNotFoundException.class);
 
-        fixtureController.getFixture("1", session);
+        fixtureController.getFixture("1");
     }
 
     @Test
     public void shouldDeleteFixtureFromDAO() {
-        when(fixtureDAO.findOne("3")).thenReturn(fixture1);
+        when(fixtureDAO.findOne(3L)).thenReturn(fixture1);
 
-        fixtureController.deleteFixture("3", session);
+        fixtureController.deleteFixture("3");
 
         verify(fixtureDAO).delete(fixture1);
     }
 
     @Test
     public void shouldThrowExceptionIfFixtureToDeleteDoesNotExist() {
-        when(fixtureDAO.findOne("5")).thenReturn(null);
+        when(fixtureDAO.findOne(5L)).thenReturn(null);
 
         exception.expect(FixtureNotFoundException.class);
 
-        fixtureController.deleteFixture("5", session);
+        fixtureController.deleteFixture("5");
     }
 
     @Test
     public void shouldSaveFixtureOnCreate() {
         when(fixture1.getId()).thenReturn(7L);
-        fixtureController.createFixture(fixture1, session);
+        fixtureController.createFixture(fixture1);
 
         verify(fixtureDAO).save(fixture1);
     }

@@ -4,8 +4,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-import javax.servlet.http.HttpSession;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import com.taselectfc.dao.FixtureDAO;
 import com.taselectfc.exception.FixtureNotFoundException;
@@ -27,17 +26,17 @@ public class FixtureController {
     private FixtureDAO fixtureDAO;
 
     @RequestMapping(value = "/fixtures", produces = "application/json", method = GET)
-    public Iterable<Fixture> getAllFixtures(HttpSession session) {
-        LOG.debug("Getting fixture list for session [{}]", session.getId());
+    public Iterable<Fixture> getAllFixtures() {
+        LOG.debug("Getting fixture list for session [{}]", getSessionId());
 
         return fixtureDAO.findAll();
     }
 
     @RequestMapping(value = "/fixtures/{id}", produces = "application/json", method = GET)
-    public Fixture getFixture(@PathVariable String id, HttpSession session) {
-        LOG.debug("Getting fixture [{}] for session [{}]", id, session.getId());
+    public Fixture getFixture(@PathVariable String id) {
+        LOG.debug("Getting fixture [{}] for session [{}]", id, getSessionId());
 
-        Fixture fixture = fixtureDAO.findOne(id);
+        Fixture fixture = fixtureDAO.findOne(Long.valueOf(id));
         if (fixture == null) {
             throw new FixtureNotFoundException();
         }
@@ -46,19 +45,23 @@ public class FixtureController {
     }
 
     @RequestMapping(value = "/fixtures/{id}", method = DELETE)
-    public Fixture deleteFixture(@PathVariable String id, HttpSession session) {
-        LOG.debug("Deleting fixture [{}] for session [{}]", id, session.getId());
+    public Fixture deleteFixture(@PathVariable String id) {
+        LOG.debug("Deleting fixture [{}] for session [{}]", id, getSessionId());
 
-        Fixture fixture = getFixture(id, session);
+        Fixture fixture = getFixture(id);
         fixtureDAO.delete(fixture);
 
         return fixture;
     }
 
     @RequestMapping(value = "/fixtures", method = POST)
-    public Fixture createFixture(@RequestBody Fixture fixture, HttpSession session) {
-        LOG.debug("Creating fixture [{}] for session [{}]", fixture.getId(), session.getId());
+    public Fixture createFixture(@RequestBody Fixture fixture) {
+        LOG.debug("Creating fixture [{}] for session [{}]", fixture.getId(), getSessionId());
 
         return fixtureDAO.save(fixture);
+    }
+
+    private static String getSessionId() {
+        return RequestContextHolder.currentRequestAttributes().getSessionId();
     }
 }
