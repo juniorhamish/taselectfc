@@ -87,7 +87,7 @@ public class Fixture {
         private String venue;
         private ZonedDateTime kickoff;
 
-        public Builder date(ZonedDateTime kickoff) {
+        public Builder kickoff(ZonedDateTime kickoff) {
             this.kickoff = kickoff;
 
             return this;
