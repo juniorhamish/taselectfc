@@ -3,11 +3,6 @@ package com.taselectfc.controllers;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
-
-import java.util.Collections;
-
-import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import com.taselectfc.dao.FixtureDAO;
-import com.taselectfc.exception.DuplicateFixtureException;
 import com.taselectfc.exception.FixtureNotFoundException;
 import com.taselectfc.model.Fixture;
 
@@ -31,56 +26,42 @@ public class FixtureController {
     private FixtureDAO fixtureDAO;
 
     @RequestMapping(value = "/fixtures", produces = "application/json", method = GET)
-    public Iterable<Fixture> getAllFixtures(HttpSession session) {
-        LOG.debug("Getting fixture list for session [{}]", session.getId());
+    public Iterable<Fixture> getAllFixtures() {
+        LOG.debug("Getting fixture list for session [{}]", getSessionId());
 
-        Iterable<Fixture> fixtureList = fixtureDAO.findAll();
-        if (fixtureList == null) {
-            fixtureList = Collections.emptyList();
-        }
-
-        return fixtureList;
+        return fixtureDAO.findAll();
     }
 
     @RequestMapping(value = "/fixtures/{id}", produces = "application/json", method = GET)
-    public Fixture getFixture(@PathVariable String id, HttpSession session) {
-        LOG.debug("Getting fixture [{}] for session [{}]", id, session.getId());
+    public Fixture getFixtureById(@PathVariable String id) {
+        LOG.debug("Getting fixture [{}] for session [{}]", id, getSessionId());
 
-        Fixture fixture = fixtureDAO.findOne(id);
+        Fixture fixture = fixtureDAO.findOne(Long.valueOf(id));
         if (fixture == null) {
-            throw new FixtureNotFoundException();
+            throw new FixtureNotFoundException(String.format("Could not find Fixture with ID [%s]", id));
         }
 
         return fixture;
     }
 
     @RequestMapping(value = "/fixtures/{id}", method = DELETE)
-    public Fixture deleteFixture(@PathVariable String id, HttpSession session) {
-        LOG.debug("Deleting fixture [{}] for session [{}]", id, session.getId());
+    public Fixture deleteFixture(@PathVariable String id) {
+        LOG.debug("Deleting fixture [{}] for session [{}]", id, getSessionId());
 
-        Fixture fixture = getFixture(id, session);
-        fixtureDAO.delete(fixture);
+        Fixture fixture = getFixtureById(id);
+        fixtureDAO.delete(Long.valueOf(id));
 
         return fixture;
     }
 
     @RequestMapping(value = "/fixtures", method = POST)
-    public Fixture createFixture(@RequestBody Fixture fixture, HttpSession session) {
-        LOG.debug("Creating fixture [{}] for session [{}]", fixture.getId(), session.getId());
-
-        if (fixtureDAO.exists(fixture.getId())) {
-            throw new DuplicateFixtureException();
-        }
+    public Fixture createFixture(@RequestBody Fixture fixture) {
+        LOG.debug("Creating fixture [{}] for session [{}]", fixture.getId(), getSessionId());
 
         return fixtureDAO.save(fixture);
     }
 
-    @RequestMapping(value = "/fixtures/{id}", method = PUT)
-    public Fixture updateOrCreateFixture(@PathVariable String id, @RequestBody Fixture fixture, HttpSession session) {
-        LOG.debug("Putting fixture [{}] for session [{}]", id, session.getId());
-
-        fixture.setId(id);
-
-        return fixtureDAO.save(fixture);
+    private static String getSessionId() {
+        return RequestContextHolder.currentRequestAttributes().getSessionId();
     }
 }

@@ -4,6 +4,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.taselectfc.model.Fixture;
 
-public interface FixtureDAO extends CrudRepository<Fixture, String> {
+public interface FixtureDAO extends CrudRepository<Fixture, Long> {
 
 }
