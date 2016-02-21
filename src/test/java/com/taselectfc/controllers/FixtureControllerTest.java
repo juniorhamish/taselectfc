@@ -66,7 +66,7 @@ public class FixtureControllerTest {
     public void shouldGetFixtureByIdFromDAO() {
         when(fixtureDAO.findOne(1L)).thenReturn(fixture1);
 
-        assertThat(fixtureController.getFixture("1"), is(fixture1));
+        assertThat(fixtureController.getFixtureById("1"), is(fixture1));
     }
 
     @Test
@@ -74,8 +74,9 @@ public class FixtureControllerTest {
         when(fixtureDAO.findOne(1L)).thenReturn(null);
 
         exception.expect(FixtureNotFoundException.class);
+        exception.expectMessage("1");
 
-        fixtureController.getFixture("1");
+        fixtureController.getFixtureById("1");
     }
 
     @Test
@@ -84,7 +85,7 @@ public class FixtureControllerTest {
 
         fixtureController.deleteFixture("3");
 
-        verify(fixtureDAO).delete(fixture1);
+        verify(fixtureDAO).delete(3L);
     }
 
     @Test
@@ -92,6 +93,7 @@ public class FixtureControllerTest {
         when(fixtureDAO.findOne(5L)).thenReturn(null);
 
         exception.expect(FixtureNotFoundException.class);
+        exception.expectMessage("5");
 
         fixtureController.deleteFixture("5");
     }

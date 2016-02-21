@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -16,6 +18,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import com.taselectfc.dao.TeamDAO;
 import com.taselectfc.exception.TeamNotFoundException;
@@ -32,6 +36,20 @@ public class TeamControllerTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+
+    @Mock
+    private RequestAttributes requestAttributes;
+
+    @Before
+    public void setup() {
+        when(requestAttributes.getSessionId()).thenReturn("MockSession");
+        RequestContextHolder.setRequestAttributes(requestAttributes);
+    }
+
+    @After
+    public void teardown() {
+        RequestContextHolder.resetRequestAttributes();
+    }
 
     @Test
     public void shouldGetTeamByIdUsingDAO() {

@@ -1,5 +1,6 @@
 package com.taselectfc.controllers;
 
+import static com.taselectfc.model.JsonAssertions.assertJsonContent;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -17,9 +18,9 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +65,6 @@ public class FixtureControllerIT {
 
     @Before
     public void setup() {
-        fixtureDAO.deleteAll();
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         ZonedDateTime kickOff = ZonedDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(15, 00),
@@ -77,6 +77,11 @@ public class FixtureControllerIT {
 
         fixture1 = new Fixture.Builder().homeTeam(scotland).awayTeam(germany).kickoff(kickOff).build();
         fixture2 = new Fixture.Builder().homeTeam(poland).awayTeam(scotland).kickoff(kickOff).venue("Hampden").build();
+    }
+
+    @After
+    public void teardown() {
+        fixtureDAO.deleteAll();
     }
 
     @Test
@@ -130,44 +135,7 @@ public class FixtureControllerIT {
         ResultActions result = mockMvc.perform(post("/fixtures").contentType(APPLICATION_JSON).content(newFixtureJson))
                 .andExpect(status().isOk());
 
-        assertJsonContent(result, fixture1);
-    }
-
-    private void assertJsonContent(ResultActions result, Fixture... expectedFixtures) throws Exception {
-        String fixturePath = "$";
-        if (expectedFixtures.length > 1) {
-            fixturePath += ".[%s]";
-        }
-
-        for (int i = 0; i < expectedFixtures.length; i++) {
-            Fixture fixture = expectedFixtures[i];
-            String currentFixturePath = String.format(fixturePath, i);
-
-            assertFixtureJson(result, currentFixturePath, fixture);
-            assertTeamJson(result, currentFixturePath + ".homeTeam", fixture.getHomeTeam());
-            assertTeamJson(result, currentFixturePath + ".awayTeam", fixture.getAwayTeam());
-
-        }
-    }
-
-    private void assertFixtureJson(ResultActions result, String jsonPath, Fixture fixture) throws Exception {
-        if (fixture.getId() != null) {
-            result.andExpect(jsonPath(jsonPath + ".id", is(fixture.getId().intValue())));
-        }
-        result.andExpect(jsonPath(jsonPath + ".venue", is(fixture.getVenue())));
-
-        if (fixture.getKickoff() != null) {
-            result.andExpect(jsonPath(jsonPath + ".kickoff",
-                    is(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(fixture.getKickoff()))));
-        }
-    }
-
-    private void assertTeamJson(ResultActions result, String teamJsonPath, Team team) throws Exception {
-        if (team != null) {
-            result.andExpect(jsonPath(teamJsonPath + ".id", is(team.getId().intValue())))
-                    .andExpect(jsonPath(teamJsonPath + ".name", is(team.getName())))
-                    .andExpect(jsonPath(teamJsonPath + ".flagName", is(team.getFlagName())));
-        }
+        assertJsonContent(result, fixtureDAO.findAll().iterator().next());
     }
 
 }
