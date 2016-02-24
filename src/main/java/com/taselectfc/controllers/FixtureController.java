@@ -33,10 +33,10 @@ public class FixtureController {
     }
 
     @RequestMapping(value = "/fixtures/{id}", produces = "application/json", method = GET)
-    public Fixture getFixtureById(@PathVariable String id) {
+    public Fixture getFixtureById(@PathVariable Long id) {
         LOG.debug("Getting fixture [{}] for session [{}]", id, getSessionId());
 
-        Fixture fixture = fixtureDAO.findOne(Long.valueOf(id));
+        Fixture fixture = fixtureDAO.findOne(id);
         if (fixture == null) {
             throw new FixtureNotFoundException(String.format("Could not find Fixture with ID [%s]", id));
         }
@@ -45,11 +45,11 @@ public class FixtureController {
     }
 
     @RequestMapping(value = "/fixtures/{id}", method = DELETE)
-    public Fixture deleteFixture(@PathVariable String id) {
+    public Fixture deleteFixture(@PathVariable Long id) {
         LOG.debug("Deleting fixture [{}] for session [{}]", id, getSessionId());
 
         Fixture fixture = getFixtureById(id);
-        fixtureDAO.delete(Long.valueOf(id));
+        fixtureDAO.delete(id);
 
         return fixture;
     }
