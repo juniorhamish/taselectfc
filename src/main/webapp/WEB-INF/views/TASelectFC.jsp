@@ -52,7 +52,7 @@
                     <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown" role="button"
                         aria-haspopup="true" aria-expanded="false">Team <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#squad">Squad</a></li>
+                            <li><a href="#players">Squad</a></li>
                             <li><a href="#stats">Stats</a></li>
                         </ul></li>
                     <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown" role="button"
@@ -80,8 +80,8 @@
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-route.min.js"></script>
     <script src="/resources/js/taselectfc.js"></script>
     <script src="/resources/js/controllers.js"></script>
 </body>

@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
@@ -19,6 +20,10 @@ public class Player {
     private String lastName;
     private LocalDate dateOfBirth;
 
+    Player() {
+        // Required for JSON deserialisation.
+    }
+    
     protected Player(Long id) {
         this.id = id;
     }
@@ -33,15 +38,16 @@ public class Player {
         return this.id;
     }
 
-    public String firstName() {
+    public String getFirstName() {
         return this.firstName;
     }
 
-    public String lastName() {
+    public String getLastName() {
         return this.lastName;
     }
 
-    public LocalDate dateOfBirth() {
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    public LocalDate getDateOfBirth() {
         return this.dateOfBirth;
     }
 
