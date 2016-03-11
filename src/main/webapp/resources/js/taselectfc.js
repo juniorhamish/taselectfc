@@ -13,8 +13,12 @@ taselectfcApp.config([ '$routeProvider', function($routeProvider) {
         controller : 'FixtureController'
     }).when('/results', {
         templateUrl : 'resources/partials/results.jsp'
-    }).when('/squad', {
-        templateUrl : 'resources/partials/squad.jsp'
+    }).when('/players', {
+        templateUrl : 'resources/partials/squad.jsp',
+        controller : 'PlayerListController'
+    }).when('/players/:id', {
+        templateUrl : 'resources/partials/player-profile.jsp',
+        controller : 'PlayerController'
     }).when('/stats', {
         templateUrl : 'resources/partials/stats.jsp'
     }).when('/gallery', {
@@ -29,7 +33,7 @@ var offsetCalculator = function() {
 }
 var $menu = $("#topnavbar");
 
-//To account for the affixed submenu being pulled out of the content flow.
+// To account for the affixed submenu being pulled out of the content flow.
 var $placeholder = $menu.clone().addClass("affix-placeholder");
 $menu.after($placeholder);
 $menu.affix({

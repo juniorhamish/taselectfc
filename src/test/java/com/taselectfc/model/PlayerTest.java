@@ -21,8 +21,8 @@ public class PlayerTest {
         Player player = new Player.Builder().firstName("Homer").lastName("Simpson")
                 .dateOfBirth(LocalDate.of(1981, 10, 21)).build();
 
-        assertThat(player.firstName(), is("Homer"));
-        assertThat(player.lastName(), is("Simpson"));
-        assertThat(player.dateOfBirth(), is(LocalDate.of(1981, 10, 21)));
+        assertThat(player.getFirstName(), is("Homer"));
+        assertThat(player.getLastName(), is("Simpson"));
+        assertThat(player.getDateOfBirth(), is(LocalDate.of(1981, 10, 21)));
     }
 }

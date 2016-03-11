@@ -6,16 +6,16 @@
                 <h2 class="intro-text text-center">Fixtures</h2>
                 <hr>
                 <div ng-repeat="fixture in fixtures">
-                    <a href="#fixtures/{{fixture.id}}"><div class="fixture-summary">
+                    <a href="#fixtures/{{fixture.id}}?projection=full"><div class="fixture-summary">
                             <div class="flag-left">
-                                <img class="img-circle" ng-src="/resources/images/flags/medium/{{fixture.homeTeamFlag}}" />
+                                <img class="img-circle" ng-src="/resources/images/flags/medium/{{fixture.homeTeam.flagName}}" />
                             </div>
                             <div class="details">
-                                <div class="teams">{{fixture.homeTeamName}} v {{fixture.awayTeamName}}</div>
-                                <div class="date">{{fixture.date | date : 'EEE dd MMM yyyy, h:mma'}}</div>
+                                <div class="teams">{{fixture.homeTeam.name}} v {{fixture.awayTeam.name}}</div>
+                                <div class="date">{{fixture.kickoff | date : 'EEE dd MMM yyyy, h:mma'}}</div>
                             </div>
                             <div class="flag-right">
-                                <img class="img-circle" ng-src="/resources/images/flags/medium/{{fixture.awayTeamFlag}}" />
+                                <img class="img-circle" ng-src="/resources/images/flags/medium/{{fixture.awayTeam.flagName}}" />
                             </div>
                         </div></a>
                     <hr>
